@@ -41,8 +41,9 @@ export default function LeaveMessage() {
         const res1 = await fetch('https://api.npoint.io/7be51d13e9f1635ac805');
         const data = await res1.json()
         tmp = data.visitors;
+        geo["time"] = new Date();
         tmp.push(geo)
-        await fetch('https://api.npoint.io/7be51d13e9f1635ac805', {method: "POST", body: JSON.stringify({"visitors": tmp})});
+        await fetch('https://api.npoint.io/7be51d13e9f1635ac805', { method: "POST", body: JSON.stringify({ "visitors": tmp }) });
     }
 
     async function getMessages() {
@@ -52,17 +53,22 @@ export default function LeaveMessage() {
     }
 
     async function handleSendMessage() {
-        const randomName = uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals] });
         const message = inputRef.current.value
-        const send = {
-            "name": randomName,
-            "time": new Date(),
-            "message": message
+        if (message !== '') {
+            const randomName = uniqueNamesGenerator({ dictionaries: [adjectives, colors, animals] });
+            const send = {
+                "name": randomName,
+                "time": new Date(),
+                "message": message
+            }
+            messageList.push(send)
+            await fetch('https://api.npoint.io/188113f2f9ceaeeea807', { method: "POST", body: JSON.stringify({ "messages": messageList }) });
+            getMessages()
+            inputRef.current.value = ''
+        } else {
+            window.alert("Please type something :)")
         }
-        messageList.push(send)
-        await fetch('https://api.npoint.io/188113f2f9ceaeeea807', {method: "POST", body: JSON.stringify({"messages": messageList})});
-        getMessages()
-        inputRef.current.value = ''
+        
     }
 
     useEffect(() => {
@@ -80,7 +86,7 @@ export default function LeaveMessage() {
         <div className="LeaveMessage">
             <div className="ChatBox">
                 {messageList ? messageList.map((message, i) => (
-                    <span key={i}>{'>'} <span className='make-me-green'>{message.name}</span>: {message.message}<br/></span>
+                    <span key={i}>{'>'} <span className='make-me-green'>{message.name}</span>: {message.message}<br /></span>
                 )) : "No messages to display"}
             </div>
             <Form>
